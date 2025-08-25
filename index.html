@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Math & Coding Tutorials</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Optional custom CSS -->
+    <style>
+        body {
+            padding-top: 60px;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .content-section {
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">Math & Coding Hub</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#submit">Add New Content</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#past">Past Content</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+        <!-- Welcome Section -->
+        <section class="text-center mb-5">
+            <h1>Welcome to the Math & Coding Tutorial Site</h1>
+            <p class="lead">Upload math problems and JavaScript snippets. View past content below.</p>
+        </section>
+
+        <!-- Submission Form -->
+        <section id="submit" class="content-section">
+            <h2>Add New Content</h2>
+            <form id="contentForm">
+                <div class="mb-3">
+                    <label for="type" class="form-label">Content Type</label>
+                    <select class="form-select" id="type" required>
+                        <option value="math">Math Problem</option>
+                        <option value="code">JavaScript Snippet</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="title" placeholder="Enter title" required />
+                </div>
+                <div class="mb-3">
+                    <label for="content" class="form-label" id="contentLabel">Content</label>
+                    <textarea class="form-control" id="content" rows="4" placeholder="Enter your math problem or code snippet" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Content</button>
+            </form>
+        </section>
+
+        <!-- Past Content -->
+        <section id="past" class="content-section">
+            <h2>Past Content</h2>
+            <div id="contentList" class="list-group">
+                <!-- Past content items will appear here -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script>
+        // Example initial content
+        const initialContents = [
+            {
+                type: 'math',
+                title: 'Pythagorean Theorem',
+                content: 'In a right-angled triangle, the square of the hypotenuse is equal to the sum of the squares of the other two sides.',
+            },
+            {
+                type: 'code',
+                title: 'JavaScript Fibonacci',
+                content: `function fibonacci(n) {
+  const seq = [0, 1];
+  for(let i=2; i<n; i++) {
+    seq.push(seq[i-1] + seq[i-2]);
+  }
+  return seq.slice(0, n);
+}`,
+            }
+        ];
+
+        // Load past content from localStorage or use initial
+        let pastContents = JSON.parse(localStorage.getItem('pastContents')) || initialContents;
+
+        const contentList = document.getElementById('contentList');
+        const form = document.getElementById('contentForm');
+        const typeSelect = document.getElementById('type');
+        const contentLabel = document.getElementById('contentLabel');
+        const contentTextarea = document.getElementById('content');
+
+        // Function to render content
+        function renderContents() {
+            contentList.innerHTML = '';
+            pastContents.forEach((item, index) => {
+                const listItem = document.createElement('div');
+                listItem.className = 'list-group-item';
+
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                const cardHeader = document.createElement('div');
+                cardHeader.className = 'card-header d-flex justify-content-between align-items-center';
+
+                const title = document.createElement('h5');
+                title.className = 'mb-0';
+                title.textContent = item.title;
+
+                cardHeader.appendChild(title);
+
+                // Content display
+                const cardBody = document.createElement('div');
+                cardBody.className = 'card-body';
+
+                if (item.type === 'math') {
+                    // Math content: display as paragraph
+                    const p = document.createElement('p');
+                    p.innerHTML = item.content;
+                    cardBody.appendChild(p);
+                } else if (item.type === 'code') {
+                    // Code snippet: display in <pre><code>
+                    const pre = document.createElement('pre');
+                    const code = document.createElement('code');
+                    code.textContent = item.content;
+                    pre.appendChild(code);
+                    cardBody.appendChild(pre);
+                }
+
+                card.appendChild(cardHeader);
+                card.appendChild(cardBody);
+                listItem.appendChild(card);
+                contentList.appendChild(listItem);
+            });
+        }
+
+        // Initial render
+        renderContents();
+
+        // Handle form change to update label
+        typeSelect.addEventListener('change', () => {
+            if (typeSelect.value === 'math') {
+                contentLabel.textContent = 'Math Problem / Explanation';
+                contentTextarea.placeholder = 'Enter your math problem or explanation';
+            } else {
+                contentLabel.textContent = 'JavaScript Code Snippet';
+                contentTextarea.placeholder = 'Enter your JavaScript code';
+            }
+        });
+
+        // Handle form submission
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newContent = {
+                type: typeSelect.value,
+                title: document.getElementById('title').value,
+                content: document.getElementById('content').value,
+            };
+            pastContents.push(newContent);
+            localStorage.setItem('pastContents', JSON.stringify(pastContents));
+            renderContents();
+            form.reset();
+            // Reset label
+            typeSelect.dispatchEvent(new Event('change'));
+        });
+
+        // Initialize label
+        typeSelect.dispatchEvent(new Event('change'));
+    </script>
+</body>
+
+<!-- Footer -->
+<footer class="bg-dark text-white text-center py-3 mt-5">
+  <div class="container">
+    <p class="mb-0">&copy; 2025 Made by Lona Matshingana</p>
+  </div>
+</footer>
+</html>
